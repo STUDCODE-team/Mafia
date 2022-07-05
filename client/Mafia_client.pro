@@ -1,4 +1,4 @@
-QT += quick core concurrent
+QT += quick core
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -10,6 +10,7 @@ CONFIG += sdk_no_version_check #disable if smth wrong
 SOURCES += \
         TcpClient.cpp \
         main.cpp
+
 
 RESOURCES += qml.qrc
 

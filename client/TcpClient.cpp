@@ -1,6 +1,6 @@
 #include "TcpClient.h"
 
-TcpClient::TcpClient(QObject *parent) : QObject(parent)
+TcpClient::TcpClient() : QObject()
 {
     connect(&_socket,   &QTcpSocket::connected,       this,     &TcpClient::onConnected);
     connect(&_socket,   &QTcpSocket::disconnected,    this,     &TcpClient::onDisconnected);
@@ -12,7 +12,7 @@ void TcpClient::bind(const QString &ip, const QString &port)
 {
     // thying to connect every N seconds via timer
     connect(try_to_connect, &Timer::timeout, this, [=]{connectToServer(ip, port);});
-    try_to_connect->start(connectionDelay);
+    try_to_connect->start_with_fire(connectionDelay);
 
     // checking if connection available every N seconds via timer
     connect(check_connection, &Timer::timeout, this, &TcpClient::checkRequest);
@@ -50,16 +50,16 @@ void TcpClient::shiftTimers()
     if (isConnected)
     {// start checking if connection available every N seconds
         try_to_connect->stop();
-        check_connection->start(connectionDelay);
+        check_connection->start_with_fire(connectionDelay);
     }
     else
     {// start trying to connect
         check_connection->stop();
-        try_to_connect->start(connectionDelay);
+        try_to_connect->start_with_fire(connectionDelay);
     }
 }
 
-void TcpClient::sendMessage(const QString &message)
+void TcpClient::send(const QString &message)
 {
     _socket.write(message.toUtf8());
     _socket.flush();
@@ -89,7 +89,7 @@ void TcpClient::onErrorOccurred(QAbstractSocket::SocketError error)
 
 void TcpClient::sendRequest()
 {
-    sendMessage("connection:check");
+    send("connection:check");
 }
 
 void TcpClient::checkRequest()

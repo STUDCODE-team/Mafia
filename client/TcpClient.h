@@ -9,11 +9,11 @@ class TcpClient : public QObject
 {
     Q_OBJECT
 public:
-    explicit TcpClient(QObject *parent = nullptr);
+    explicit TcpClient();
     void bind(const QString &ip, const QString &port);
 
 public slots:
-    void sendMessage(const QString &message);
+    void send(const QString &message);
 
 private:
     void onConnected();

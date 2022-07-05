@@ -1,21 +1,14 @@
 #include <QTimer>
+#include <QThread>
 
-class Timer : public QObject
+class Timer : public QTimer
 {
     Q_OBJECT
 public:
-    explicit Timer(){
-        connect(timer, &QTimer::timeout, this, &Timer::timeout);
-    }
-    void start(int duration) {
-        emit timeout(); timer->start(duration);
-    }
-    void stop(){
-        timer->stop();
-    }
+    explicit Timer(){}
 
-private:
-    QTimer *timer = new QTimer(this);
-signals:
-    void timeout();
+    void start_with_fire(int duration) {
+        emit this->timeout({});
+        this->start(duration);
+    }
 };

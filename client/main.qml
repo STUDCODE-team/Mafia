@@ -46,17 +46,11 @@ Window {
         }
         RowLayout {
             Layout.fillWidth: true
-            TextField {
-                id: textFieldMessage
-                placeholderText: qsTr("Your message ...")
-                Layout.fillWidth: true
-                onAccepted: buttonSend.clicked()
-            }
             Button {
                 id: buttonSend
                 text: qsTr("Send")
                 onClicked: {
-                    client.sendMessage(textFieldMessage.text)
+                    client.send(textFieldMessage.text)
                     textFieldMessage.clear()
                 }
             }

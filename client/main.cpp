@@ -1,9 +1,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
-#include "QtCore/qthread.h"
 #include "TcpClient.h"
-#include "QtConcurrent"
 
 int main(int argc, char *argv[])
 {
@@ -21,10 +19,10 @@ int main(int argc, char *argv[])
             QCoreApplication::exit(-1);
     }, Qt::QueuedConnection);
 
-
     TcpClient client;
     client.bind("91.239.26.149", "5893");
 
+//    RequestManager manager(&client);
 
     engine.rootContext()->setContextProperty("client", &client);
     engine.load(url);
