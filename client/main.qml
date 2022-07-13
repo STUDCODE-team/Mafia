@@ -3,57 +3,44 @@ import QtQuick.Window 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
 
-Window {
+ApplicationWindow {
     width: 640
     height: 480
     visible: true
-    title: qsTr("Chat Client")
-
-    Connections {
-        target: client
-        function onNewMessage(ba) {
-            listModelMessages.append({
-                                         message: ba + ""
-                                     })
+    title: qsTr("MAFIA")
+    Connections{
+        target: manager
+        function onSetConnectionStatus(status)
+        {
+            connectionLabel.text = status
         }
-        function onSetConnectionStatus(status) {
-            statusLabel.text = status
+        function onRoomCreated(key)
+        {
+            roomNumber.key = key
         }
     }
+
     ColumnLayout {
         anchors.fill: parent
+        Label{
+            id: connectionLabel
+            Layout.fillWidth: true
+            text: "Connecting..."
+        }
         Label {
-            id: statusLabel
+            id: roomNumber
+            property string key
+            text: "Комната №" + key;
             Layout.fillWidth: true
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
-            text: "Connecting to server..."
+            color: "blue"
         }
-        ListView {
-            Layout.fillHeight: true
+        Button{
             Layout.fillWidth: true
-            clip: true
-            model: ListModel {
-                id: listModelMessages
-                ListElement {
-                    message: "Welcome to chat client"
-                }
-            }
-            delegate: ItemDelegate {
-                text: message
-            }
-            ScrollBar.vertical: ScrollBar {}
-        }
-        RowLayout {
-            Layout.fillWidth: true
-            Button {
-                id: buttonSend
-                text: qsTr("Send")
-                onClicked: {
-                    client.send(textFieldMessage.text)
-                    textFieldMessage.clear()
-                }
+            text: "Создать комнату"
+            onClicked: {
+                manager.createNewRoom();
             }
         }
+
     }
 }
