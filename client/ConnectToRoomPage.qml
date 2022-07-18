@@ -16,7 +16,6 @@ Item {
             TextInput{
                 id: inpt
                 anchors.fill: parent
-                focus: true
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
             }

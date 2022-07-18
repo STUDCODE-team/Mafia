@@ -4,6 +4,7 @@
 #include <RequestManager.h>
 #include <QDebug>
 
+
 int main(int argc, char *argv[])
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
@@ -21,7 +22,8 @@ int main(int argc, char *argv[])
     }, Qt::QueuedConnection);
 
     RequestManager *manager = new RequestManager();
-    manager->bind_server("185.105.89.30", "5893");
+//    manager->bind_server("185.105.89.30", "5893");
+    manager->bind_server("localhost", "5893");
 
     engine.rootContext()->setContextProperty("manager", manager);
     engine.load(url);

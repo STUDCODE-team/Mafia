@@ -3,14 +3,16 @@ package main
 import (
 	// ch "./channels"
 	"net"
+	"strings"
 )
 
-// type User struct {
-// 	room      int
-// 	replyChan chan string
-// }
-//
-// var UserList map[net.Conn]User
+type User struct {
+	ID        int
+	room      int
+	replyChan chan string
+}
+
+var UserList map[net.Conn]User
 
 func main() {
 	// создание сервера
@@ -63,8 +65,15 @@ func handle(con net.Conn) {
 }
 
 func proceedRequest(request string, replyChan chan string) {
-	switch request {
-	case "connection:check":
-		replyChan <- "connection:confirmed"
+	switch strings.Split(request, ":")[1] {
+
+	case "CONN":
+		replyChan <- "REP:CONN:OK"
+		// update user info
+		// add user
+
+	case "NEWROOM":
+		replyChan <- "REP:NEWROOM:1000"
+		// update user info
 	}
 }

@@ -11,16 +11,32 @@ ApplicationWindow {
     visible: true
     title: qsTr("MAFIA")
 
+    Connections{
+        target: manager
+        function onQml_new_room(num){
+            setPage(roomLobby)
+            roomLobby.setRoomNum(num)
+        }
+    }
+
     function setPage(page){
-        pageLoader.setSource(page)
+        stack.currentIndex = page.stackIndex
     }
 
-    Component.onCompleted: {
-        pageLoader.setSource("HomePage.qml")
-    }
-
-    Loader{
-        id: pageLoader
+    StackLayout{
+        id: stack
         anchors.fill: parent
+        HomePage{
+            id: homePage
+            property int stackIndex: 0
+        }
+        ConnectToRoomPage{
+            id: connectToRoomPage
+            property int stackIndex: 1
+        }
+        RoomLobby{
+            id: roomLobby
+            property int stackIndex: 2
+        }
     }
 }

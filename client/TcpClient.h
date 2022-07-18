@@ -11,6 +11,7 @@ class TcpClient : public QObject
 public:
     explicit TcpClient();
     void bind(const QString &ip, const QString &port);
+    void setDeviceID(const int& id);
 
 public slots:
     void send(const QString &message);
@@ -38,8 +39,9 @@ private:
     Timer *check_connection = new Timer();
     void shiftTimers();
 
-    void checkRequest();
-    void sendRequest();
+    int deviceID;
+    void checkConnRequest();
+    void sendConnRequest();
 
 #define WaitForNetwork  "Wait for network connection..."
 #define TryToConnect    "Trying to connect..."

@@ -9,9 +9,9 @@ Page{
 
         Button{
             implicitWidth: 200
-            text:  qsTr("Создать компану")
+            text:  qsTr("Создать комнату")
             onClicked: {
-                //create room request
+                manager.createNewRoom()
             }
         }
 
@@ -19,7 +19,7 @@ Page{
             implicitWidth: 200
             text:  qsTr("Подключиться")
             onClicked: {
-                main.setPage("ConnectToRoomPage.qml")
+                main.setPage(connectToRoomPage)
             }
         }
     }

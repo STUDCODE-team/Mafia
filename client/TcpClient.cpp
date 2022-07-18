@@ -1,5 +1,10 @@
 #include "TcpClient.h"
 
+#ifdef QT_DEBUG
+    #include <QTime>
+#endif
+
+
 TcpClient::TcpClient() : QObject()
 {
     connect(&_socket,   &QTcpSocket::connected,       this,     &TcpClient::onConnected);
@@ -15,7 +20,12 @@ void TcpClient::bind(const QString &ip, const QString &port)
     try_to_connect->start_with_fire(connectionDelay);
 
     // checking if connection available every N seconds via timer
-    connect(check_connection, &Timer::timeout, this, &TcpClient::checkRequest);
+    connect(check_connection, &Timer::timeout, this, &TcpClient::checkConnRequest);
+}
+
+void TcpClient::setDeviceID(const int &id)
+{
+    this->deviceID = id;
 }
 
 void TcpClient::connectToServer(const QString &ip, const QString &port)
@@ -63,12 +73,18 @@ void TcpClient::send(const QString &message)
 {
     _socket.write(message.toUtf8());
     _socket.flush();
+#ifdef QT_DEBUG
+        qInfo() << QTime::currentTime().toString() << "SEND: \t" << message;
+#endif
 }
 
 void TcpClient::onReadyRead()
 {
     const auto message = _socket.readAll();
-    if(message == "connection:confirmed")
+#ifdef QT_DEBUG
+        qInfo() << QTime::currentTime().toString() << "GET: \t" << message;
+#endif
+    if(message == "REP:CONN:OK")
     {
         lastRequestAnswered = true;
         return;
@@ -87,25 +103,25 @@ void TcpClient::onErrorOccurred(QAbstractSocket::SocketError error)
 #endif
 }
 
-void TcpClient::sendRequest()
+void TcpClient::sendConnRequest()
 {
-    send("connection:check");
+    send("REQ:CONN:" + QString::number(deviceID));
 }
 
-void TcpClient::checkRequest()
+void TcpClient::checkConnRequest()
 {
     if (lastRequestAnswered)
     {// connection is confirmed
 #ifdef QT_DEBUG
-        qInfo() << "connection is confirmed";
+        qInfo() << QTime::currentTime().toString() << "connection is confirmed";
 #endif
         lastRequestAnswered = false;
-        sendRequest();
+        sendConnRequest();
     }
     else
     {// check request was not confirmed
 #ifdef QT_DEBUG
-        qInfo() << "connection is failed";
+        qInfo() << QTime::currentTime().toString() << " connection is failed";
 #endif
         _socket.close();
     }
