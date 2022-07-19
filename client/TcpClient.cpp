@@ -1,9 +1,5 @@
 #include "TcpClient.h"
 
-#ifdef QT_DEBUG
-    #include <QTime>
-#endif
-
 
 TcpClient::TcpClient() : QObject()
 {

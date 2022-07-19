@@ -8,6 +8,7 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs depr
 CONFIG += sdk_no_version_check #disable if smth wrong
 
 SOURCES += \
+        FileSystem.cpp \
         RequestManager.cpp \
         TcpClient.cpp \
         main.cpp
@@ -26,6 +27,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
+    FileSystem.h \
     RequestManager.h \
     TcpClient.h \
     Timer.h

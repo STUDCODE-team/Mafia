@@ -3,6 +3,11 @@
 
 #include <QObject>
 #include <TcpClient.h>
+#include "FileSystem.h"
+
+#ifdef QT_DEBUG
+    #include <QTime>
+#endif
 
 class RequestManager : public QObject
 {

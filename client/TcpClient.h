@@ -5,6 +5,10 @@
 #include <QTcpSocket>
 #include <Timer.h>
 
+#ifdef QT_DEBUG
+    #include <QTime>
+#endif
+
 class TcpClient : public QObject
 {
     Q_OBJECT
