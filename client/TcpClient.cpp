@@ -19,11 +19,6 @@ void TcpClient::bind(const QString &ip, const QString &port)
     connect(check_connection, &Timer::timeout, this, &TcpClient::checkConnRequest);
 }
 
-void TcpClient::setDeviceID(const int &id)
-{
-    this->deviceID = id;
-}
-
 void TcpClient::connectToServer(const QString &ip, const QString &port)
 {
     _socket.connectToHost(ip, port.toUInt());
@@ -38,6 +33,8 @@ void TcpClient::onConnected()
     lastRequestAnswered = true;
     emit setConnectionStatus(Connected);
     shiftTimers();
+
+    sendDeviceID();
 }
 
 void TcpClient::onDisconnected()
@@ -67,8 +64,9 @@ void TcpClient::shiftTimers()
 
 void TcpClient::send(const QString &message)
 {
-    _socket.write(message.toUtf8());
     _socket.flush();
+    _socket.write(message.toUtf8() + "#"); // '#' is request separator
+
 #ifdef QT_DEBUG
         qInfo() << QTime::currentTime().toString() << "SEND: \t" << message;
 #endif
@@ -76,16 +74,30 @@ void TcpClient::send(const QString &message)
 
 void TcpClient::onReadyRead()
 {
-    const auto message = _socket.readAll();
+    //replyes are separatied with '#'
+    const QList<QByteArray> m_list = _socket.readAll().split('#');
+
+    // parsing reply to single ones
+    foreach(QByteArray message, m_list)
+    {
+        if(!message.isEmpty()) reply(message);
+    }
+}
+
+void TcpClient::reply(const QByteArray &rep)
+{
 #ifdef QT_DEBUG
-        qInfo() << QTime::currentTime().toString() << "GET: \t" << message;
+        qInfo() << QTime::currentTime().toString() << "GET: \t" << rep;
 #endif
-    if(message == "REP:CONN:OK")
+    if(rep == "REP:CONN:OK")
     {
         lastRequestAnswered = true;
+#ifdef QT_DEBUG
+        qInfo() << QTime::currentTime().toString() << "connection is confirmed";
+#endif
         return;
     }
-    emit newMessage(message);
+    emit newMessage(rep);
 }
 
 void TcpClient::onErrorOccurred(QAbstractSocket::SocketError error)
@@ -101,16 +113,18 @@ void TcpClient::onErrorOccurred(QAbstractSocket::SocketError error)
 
 void TcpClient::sendConnRequest()
 {
-    send("REQ:CONN:" + QString::number(deviceID));
+    send("REQ:CONN");
+}
+
+void TcpClient::sendDeviceID()
+{
+    send("REQ:DEVICEID:" + QString::number(deviceID));
 }
 
 void TcpClient::checkConnRequest()
 {
     if (lastRequestAnswered)
     {// connection is confirmed
-#ifdef QT_DEBUG
-        qInfo() << QTime::currentTime().toString() << "connection is confirmed";
-#endif
         lastRequestAnswered = false;
         sendConnRequest();
     }

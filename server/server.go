@@ -2,17 +2,44 @@ package main
 
 import (
 	// ch "./channels"
+	"fmt"
 	"net"
 	"strings"
 )
 
 type User struct {
-	ID        int
-	room      int
+	ID        string
+	room      string
 	replyChan chan string
 }
 
-var UserList map[net.Conn]User
+var UserList map[string]User = make(map[string]User)
+
+func identifyUser(id string, newReplyChan chan string) {
+	user, ok := UserList[id]
+	if ok {
+		user.replyChan = newReplyChan
+		UserList[id] = user
+		userBack(id)
+	} else {
+		UserList[id] = User{ID: id, room: "", replyChan: newReplyChan}
+	}
+}
+
+func userBack(id string) {
+	sendToClient(id, "ALL USER DATA")
+	// send all user info to client
+}
+
+func sendToClient(id, data string) {
+	replyChan := getReplyChan(id)
+	replyChan <- data
+}
+
+func getReplyChan(id string) chan string {
+	user := UserList[id]
+	return user.replyChan
+}
 
 func main() {
 	// создание сервера
@@ -37,6 +64,9 @@ func main() {
 
 func handle(con net.Conn) {
 	defer con.Close()
+	//
+	// defer delete(UserList, "1011377391")
+	//
 
 	replyChan := make(chan string)
 
@@ -53,24 +83,35 @@ func handle(con net.Conn) {
 			}
 
 			// отправка данных в канал для обработки
-			go proceedRequest(string(buf[:rlen]), replyChan)
+			go parseRequest(string(buf[:rlen]), replyChan)
 		}
 	}()
 
 	//отправка ответов клиенту
 	for {
 		reply := <-replyChan
-		con.Write([]byte(reply))
+		con.Write([]byte(reply + "#"))
+	}
+}
+
+func parseRequest(request string, replyChan chan string) {
+	requestList := strings.Split(request, "#")
+	for _, singleRequest := range requestList {
+		if singleRequest != "" {
+			go proceedRequest(singleRequest, replyChan)
+		}
 	}
 }
 
 func proceedRequest(request string, replyChan chan string) {
+	fmt.Println(request)
 	switch strings.Split(request, ":")[1] {
 
 	case "CONN":
 		replyChan <- "REP:CONN:OK"
-		// update user info
-		// add user
+
+	case "DEVICEID":
+		go identifyUser(strings.Split(request, ":")[2], replyChan)
 
 	case "NEWROOM":
 		replyChan <- "REP:NEWROOM:1000"

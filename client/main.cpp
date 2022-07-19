@@ -23,7 +23,8 @@ int main(int argc, char *argv[])
 
     RequestManager *manager = new RequestManager();
 //    manager->bind_server("185.105.89.30", "5893");
-    manager->bind_server("localhost", "5893");
+    manager->bind_server("192.168.1.7", "5893");
+//    manager->bind_server("localhost", "5893");
 
     engine.rootContext()->setContextProperty("manager", manager);
     engine.load(url);

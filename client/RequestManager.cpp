@@ -4,22 +4,11 @@ RequestManager::RequestManager()
 {
     connect(&client, &TcpClient::newMessage, this, &RequestManager::reply);
     connect(&client, &TcpClient::setConnectionStatus, this, &RequestManager::setConnectionStatus);
-    setClientDeviceID();
 }
 
 void RequestManager::bind_server(const QString &port, const QString &ip)
 {
     this->client.bind(port, ip);
-}
-
-void RequestManager::setClientDeviceID()
-{
-    int deviceID = FileSystem::bindDeviceID();
-    client.setDeviceID(deviceID);
-
-#ifdef QT_DEBUG
-        qInfo() << QTime::currentTime().toString() << "DEVICE_ID: \t" << deviceID;
-#endif
 }
 
 void RequestManager::createNewRoom()
