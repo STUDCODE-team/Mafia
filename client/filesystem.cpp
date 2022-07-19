@@ -29,6 +29,10 @@ int FileSystem::bindDeviceID()
     }
     file.close();
 
+#ifdef QT_DEBUG
+        qInfo() << QTime::currentTime().toString() << "DEVICE_ID: \t" << deviceID;
+#endif
+
     return deviceID;
 }
 

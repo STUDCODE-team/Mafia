@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include <TcpClient.h>
-#include "FileSystem.h"
 
 #ifdef QT_DEBUG
     #include <QTime>
@@ -25,8 +24,6 @@ private:
     void reply(const QString &rep);
 
     void reply_newroom(const QString &rep);
-
-    void setClientDeviceID();
 
     TcpClient client;
 

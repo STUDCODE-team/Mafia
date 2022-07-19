@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QTcpSocket>
 #include <Timer.h>
+#include "FileSystem.h"
 
 #ifdef QT_DEBUG
     #include <QTime>
@@ -15,7 +16,6 @@ class TcpClient : public QObject
 public:
     explicit TcpClient();
     void bind(const QString &ip, const QString &port);
-    void setDeviceID(const int& id);
 
 public slots:
     void send(const QString &message);
@@ -43,9 +43,13 @@ private:
     Timer *check_connection = new Timer();
     void shiftTimers();
 
-    int deviceID;
+    int deviceID = FileSystem::bindDeviceID();
+    void sendDeviceID();
+
     void checkConnRequest();
     void sendConnRequest();
+
+    void reply(const QByteArray &rep);
 
 #define WaitForNetwork  "Wait for network connection..."
 #define TryToConnect    "Trying to connect..."

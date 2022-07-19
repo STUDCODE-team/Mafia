@@ -7,6 +7,7 @@
 
 #ifdef QT_DEBUG
     #include <QDebug>
+    #include <QTime>
 #endif
 
 class FileSystem
