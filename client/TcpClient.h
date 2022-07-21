@@ -39,8 +39,8 @@ private slots:
 private:
     QTcpSocket _socket;
 
-    Timer *try_to_connect   = new Timer();
-    Timer *check_connection = new Timer();
+    Timer try_to_connect;
+    Timer check_connection;
     void shiftTimers();
 
     int deviceID = FileSystem::bindDeviceID();
@@ -54,8 +54,6 @@ private:
 #define WaitForNetwork  "Wait for network connection..."
 #define TryToConnect    "Trying to connect..."
 #define Connected       "Connected"
-
-#define connectionDelay 3000
 
 };
 

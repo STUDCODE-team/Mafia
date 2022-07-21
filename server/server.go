@@ -7,7 +7,7 @@ import (
 	"time"
 	"strconv"
 
-	"fmt"
+	// "fmt"
 )
 
 type Room struct {
@@ -143,7 +143,7 @@ func proceedRequest(request string, replyChan chan string) {
 	// move current user into that room
 	case "NEWROOM":
 		roomID := generateRoomID()
-		replyChan <- ("REP:NEWROOM:" + roomID)
+		replyChan <- ("REP:ROOM:" + roomID)
 		user := UserList[replyChan]
 		user.room = roomID
 		RoomList[roomID] = Room{ID: roomID, players: []User{user}}

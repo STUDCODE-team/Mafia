@@ -13,7 +13,7 @@ ApplicationWindow {
 
     Connections{
         target: manager
-        function onQml_new_room(num){
+        function onQml_enterRoom(num){
             setPage(roomLobby)
             roomLobby.setRoomNum(num)
         }

@@ -12,11 +12,11 @@ TcpClient::TcpClient() : QObject()
 void TcpClient::bind(const QString &ip, const QString &port)
 {
     // thying to connect every N seconds via timer
-    connect(try_to_connect, &Timer::timeout, this, [=]{connectToServer(ip, port);});
-    try_to_connect->start_with_fire(connectionDelay);
+    connect(&try_to_connect, &Timer::timeout, this, [=]{connectToServer(ip, port);});
+    try_to_connect.start_with_fire();
 
     // checking if connection available every N seconds via timer
-    connect(check_connection, &Timer::timeout, this, &TcpClient::checkConnRequest);
+    connect(&check_connection, &Timer::timeout, this, &TcpClient::checkConnRequest);
 }
 
 void TcpClient::connectToServer(const QString &ip, const QString &port)
@@ -52,13 +52,13 @@ void TcpClient::shiftTimers()
 {
     if (isConnected)
     {// start checking if connection available every N seconds
-        try_to_connect->stop();
-        check_connection->start_with_fire(connectionDelay);
+        try_to_connect.stop();
+        check_connection.start_with_fire();
     }
     else
     {// start trying to connect
-        check_connection->stop();
-        try_to_connect->start_with_fire(connectionDelay);
+        check_connection.stop();
+        try_to_connect.start_with_fire();
     }
 }
 

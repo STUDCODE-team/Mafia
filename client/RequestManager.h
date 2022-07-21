@@ -23,13 +23,13 @@ public slots:
 private:
     void reply(const QString &rep);
 
-    void reply_newroom(const QString &rep);
+    void reply_enterRoom(const QString &rep);
 
     TcpClient client;
 
 signals:
      void setConnectionStatus(const QString &status);
-     void qml_new_room(const QString &roomKey);
+     void qml_enterRoom(const QString &roomKey);
 };
 
 #endif // REQUESTMANAGER_H

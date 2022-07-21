@@ -2,8 +2,10 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <RequestManager.h>
-#include <QDebug>
 
+#ifdef QT_DEBUG
+    #include <QDebug>
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -22,12 +24,16 @@ int main(int argc, char *argv[])
     }, Qt::QueuedConnection);
 
     RequestManager *manager = new RequestManager();
+
+
 //    manager->bind_server("185.105.89.30", "5893");
     manager->bind_server("192.168.1.7", "5893");
 //    manager->bind_server("localhost", "5893");
 
+
     engine.rootContext()->setContextProperty("manager", manager);
     engine.load(url);
+
 
     return app.exec();
 }

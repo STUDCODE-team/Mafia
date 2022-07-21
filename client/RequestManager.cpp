@@ -18,9 +18,9 @@ void RequestManager::createNewRoom()
 
 void RequestManager::reply(const QString &ans)
 {
-    if(ans.contains("REP:NEWROOM:"))
+    if(ans.contains("REP:ROOM:"))
     {
-        reply_newroom(ans.split(":").last());
+        reply_enterRoom(ans.split(":").last());
     }
 //    else if()
 //    {
@@ -38,7 +38,7 @@ void RequestManager::reply(const QString &ans)
     }
 }
 
-void RequestManager::reply_newroom(const QString &rep)
+void RequestManager::reply_enterRoom(const QString &rep)
 {
     if (rep == "NO")
     {
@@ -48,5 +48,5 @@ void RequestManager::reply_newroom(const QString &rep)
         return;
     }
 
-    emit qml_new_room(rep);
+    emit qml_enterRoom(rep);
 }

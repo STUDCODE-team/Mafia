@@ -10,11 +10,13 @@ Item {
 
     ColumnLayout{
         anchors.fill: parent
-        Label{
-            id: roomLabel
-            Layout.fillWidth: true
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
+        RowLayout{
+            Label{
+                id: roomLabel
+                Layout.fillWidth: true
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+            }
         }
         ListView{
             Layout.fillHeight: true
