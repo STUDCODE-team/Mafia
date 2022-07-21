@@ -16,17 +16,18 @@ type Room struct {
 
 var RoomList map[string]Room = make(map[string]Room)
 
-func (room Room) removePlayerByIndex(index int) {
+func (room Room) removePlayerByIndex(index int) Room {
     room.players = append(room.players[:index], room.players[index+1:]...)
+	return room
 }
 
-func (room Room) removePlayerByUser(user User) {
+func (room Room) removePlayerByUser(user User) Room {
 	for i, player := range room.players {
 		if player.ID == user.ID {
-			room.removePlayerByIndex(i)
-			return
+			return room.removePlayerByIndex(i)
 		}
 	}
+	return Room{}
 }
 
 //roomID is unique key that belongs to each room
@@ -99,6 +100,13 @@ func getUserState(replyChan chan string) (string, chan string) {
 //It's supposed to send all info back to client
 func sendUserState(state string, replyChan chan string) {
 	replyChan <- "REP:STATE:{" + state + "}"
+}
+
+func sendUserStateForAll(roomNum string) {
+	room := RoomList[roomNum]
+	for _, user := range room.players {
+		sendUserState(getUserState(user.replyChan))
+	}
 }
 
 func main() {
@@ -184,19 +192,40 @@ func proceedRequest(request string, replyChan chan string) {
 
 		sendUserState(getUserState(replyChan))
 
-	//thus request sends if client is needed to to exit a room he in
-	case "EXITROOM":
+	//this request sends if client is needed to to exit a room he in
+	case "EXITROOM": //?
 		// delete user from room players list
+
 		user := UserList[replyChan]
-		RoomList[user.room].removePlayerByUser(user)
+		room := RoomList[user.room]
+		RoomList[user.room] = room.removePlayerByUser(user);
+		// if room is empty, delete it
+		if len(RoomList[user.room].players) == 0 {
+			delete(RoomList, user.room)
+		} else {
+			sendUserStateForAll(user.room)
+		}
+		// delete room from user's field
 		user.room = ""
 		UserList[replyChan] = user
+
 
 		sendUserState(getUserState(replyChan))
 
 
+	case "CONROOM":
+		roomNum := strings.Split(request, ":")[2]
+		room, ok := RoomList[roomNum]
+		if !ok {
+			return
+		}
+		user := UserList[replyChan]
+		user.room = roomNum
+		room.players = append(room.players, user)
+		UserList[replyChan] = user
+		RoomList[roomNum] = room
 
-
+		sendUserStateForAll(roomNum)
 
 	}
 

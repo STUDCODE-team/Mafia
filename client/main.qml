@@ -30,6 +30,14 @@ ApplicationWindow {
     StackLayout{
         id: stack
         anchors.fill: parent
+        onCurrentIndexChanged: {
+            if (currentIndex == 1){
+                connectToRoomPage.setInputFieldFocus()
+            }else{
+                forceActiveFocus();
+            }
+        }
+
         HomePage{
             id: homePage
             property int stackIndex: 0

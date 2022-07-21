@@ -19,6 +19,7 @@ public:
 
 public slots:
     void createNewRoom();
+    void connectToRoom(const QString &num);
     void exitRoom();
 
 private:

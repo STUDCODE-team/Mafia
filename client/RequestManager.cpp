@@ -16,6 +16,11 @@ void RequestManager::createNewRoom()
     client.send("REQ:NEWROOM");
 }
 
+void RequestManager::connectToRoom(const QString &num)
+{
+    client.send("REQ:CONROOM:" + num);
+}
+
 void RequestManager::exitRoom()
 {
     client.send("REQ:EXITROOM");

@@ -10,7 +10,6 @@ Item {
         playerModel.clear()
         for(var id in players){
             playerModel.append({"playerID": players[id]})
-            console.log(players)
         }
     }
 
