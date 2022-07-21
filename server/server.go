@@ -3,10 +3,9 @@ package main
 import (
 	"math/rand"
 	"net"
+	"strconv"
 	"strings"
 	"time"
-	"strconv"
-
 	// "fmt"
 )
 
@@ -17,6 +16,20 @@ type Room struct {
 
 var RoomList map[string]Room = make(map[string]Room)
 
+func (room Room) removePlayerByIndex(index int) Room {
+    room.players = append(room.players[:index], room.players[index+1:]...)
+	return room
+}
+
+func (room Room) removePlayerByUser(user User) Room {
+	for i, player := range room.players {
+		if player.ID == user.ID {
+			return room.removePlayerByIndex(i)
+		}
+	}
+	return Room{}
+}
+
 //roomID is unique key that belongs to each room
 func generateRoomID() string {
 	//bind seed to timer
@@ -24,7 +37,7 @@ func generateRoomID() string {
 	for {
 		// generate new roomId until it unique
 		id := rand.Intn(9000) + 1000
-		_, ok := RoomList[string(id)]
+		_, ok := RoomList[strconv.Itoa(id)]
 		if !ok {
 			return strconv.Itoa(id)
 		}
@@ -45,13 +58,15 @@ var UserList map[chan string]User = make(map[chan string]User)
 // using which we can identify client and connect it back to room
 // if for example connection lost
 func identifyUser(id string, newReplyChan chan string) {
-	for replyChan, user := range UserList{
+	for replyChan, user := range UserList {
 		// if there was user with same deviceID,
 		// it means client has reconnected and we have to
 		// change channels by deleting old and creating a new one
 		if user.ID == id {
 			UserList[newReplyChan] = user
 			delete(UserList, replyChan)
+			// userBack
+			sendUserState(getUserState(newReplyChan))
 			return
 		}
 	}
@@ -60,12 +75,38 @@ func identifyUser(id string, newReplyChan chan string) {
 	// it is new user
 	UserList[newReplyChan] = User{ID: id, room: "", replyChan: newReplyChan}
 }
-// That function calls if client had lost connection and then,
+
+//This function generate reply form to tell client his status in app
+// EXAMPLE 1: possible return REP:STATE:{ROOM::{}}
+// means client now not in room
+// EXAMPLE 2: possible return REP:STATE:{ROOM:1232:{12,122,223}}
+// means client now in room 1232 that full with client 12, 122 and 223
+func getUserState(replyChan chan string) (string, chan string) {
+	room := UserList[replyChan].room
+	if room == "" {
+		return "ROOM::{}", replyChan
+	}
+
+	status := "ROOM:" + room + ":{"
+	for _, usr := range RoomList[room].players {
+		status += usr.ID + ","
+	}
+	return status[0:len(status)-1] + "}", replyChan
+
+}
+
+// This function calls if client had lost connection and then,
 //it returned back
 //It's supposed to send all info back to client
-func userBack(id string) {
-	// sendToClient(id, "ALL USER DATA")
-	// send all user info to client
+func sendUserState(state string, replyChan chan string) {
+	replyChan <- "REP:STATE:{" + state + "}"
+}
+
+func sendUserStateForAll(roomNum string) {
+	room := RoomList[roomNum]
+	for _, user := range room.players {
+		sendUserState(getUserState(user.replyChan))
+	}
 }
 
 func main() {
@@ -112,6 +153,7 @@ func handle(con net.Conn) {
 		con.Write([]byte(reply + "#"))
 	}
 }
+
 //Requests may come together
 //so we need to split it to single ones
 func parseRequest(request string, replyChan chan string) {
@@ -143,9 +185,48 @@ func proceedRequest(request string, replyChan chan string) {
 	// move current user into that room
 	case "NEWROOM":
 		roomID := generateRoomID()
-		replyChan <- ("REP:ROOM:" + roomID)
 		user := UserList[replyChan]
 		user.room = roomID
+		UserList[replyChan] = user
 		RoomList[roomID] = Room{ID: roomID, players: []User{user}}
+
+		sendUserState(getUserState(replyChan))
+
+	//this request sends if client is needed to to exit a room he in
+	case "EXITROOM": //?
+		// delete user from room players list
+
+		user := UserList[replyChan]
+		room := RoomList[user.room]
+		RoomList[user.room] = room.removePlayerByUser(user);
+		// if room is empty, delete it
+		if len(RoomList[user.room].players) == 0 {
+			delete(RoomList, user.room)
+		} else {
+			sendUserStateForAll(user.room)
+		}
+		// delete room from user's field
+		user.room = ""
+		UserList[replyChan] = user
+
+
+		sendUserState(getUserState(replyChan))
+
+
+	case "CONROOM":
+		roomNum := strings.Split(request, ":")[2]
+		room, ok := RoomList[roomNum]
+		if !ok {
+			return
+		}
+		user := UserList[replyChan]
+		user.room = roomNum
+		room.players = append(room.players, user)
+		UserList[replyChan] = user
+		RoomList[roomNum] = room
+
+		sendUserStateForAll(roomNum)
+
 	}
+
 }

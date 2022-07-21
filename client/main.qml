@@ -13,9 +13,13 @@ ApplicationWindow {
 
     Connections{
         target: manager
-        function onQml_enterRoom(num){
+        function onQml_exitRoom(){
+            setPage(homePage)
+        }
+
+        function onQml_enterRoom(num, playerList){
             setPage(roomLobby)
-            roomLobby.setRoomNum(num)
+            roomLobby.updateData(num, playerList)
         }
     }
 
@@ -26,6 +30,14 @@ ApplicationWindow {
     StackLayout{
         id: stack
         anchors.fill: parent
+        onCurrentIndexChanged: {
+            if (currentIndex == 1){
+                connectToRoomPage.setInputFieldFocus()
+            }else{
+                forceActiveFocus();
+            }
+        }
+
         HomePage{
             id: homePage
             property int stackIndex: 0
