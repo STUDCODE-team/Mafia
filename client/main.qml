@@ -13,9 +13,13 @@ ApplicationWindow {
 
     Connections{
         target: manager
-        function onQml_enterRoom(num){
+        function onQml_exitRoom(){
+            setPage(homePage)
+        }
+
+        function onQml_enterRoom(num, playerList){
             setPage(roomLobby)
-            roomLobby.setRoomNum(num)
+            roomLobby.updateData(num, playerList)
         }
     }
 

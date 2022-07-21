@@ -19,17 +19,20 @@ public:
 
 public slots:
     void createNewRoom();
+    void exitRoom();
 
 private:
     void reply(const QString &rep);
 
-    void reply_enterRoom(const QString &rep);
+    void reply_releaseStatus(const QString &rep);
 
     TcpClient client;
 
 signals:
      void setConnectionStatus(const QString &status);
-     void qml_enterRoom(const QString &roomKey);
+     void qml_enterRoom(const QString &roomKey, const QStringList &playersList);
+     void qml_exitRoom();
+
 };
 
 #endif // REQUESTMANAGER_H

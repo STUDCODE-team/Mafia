@@ -16,16 +16,18 @@ void RequestManager::createNewRoom()
     client.send("REQ:NEWROOM");
 }
 
+void RequestManager::exitRoom()
+{
+    client.send("REQ:EXITROOM");
+}
+
 void RequestManager::reply(const QString &ans)
 {
-    if(ans.contains("REP:ROOM:"))
+    if(ans.contains("REP:STATE"))
     {
-        reply_enterRoom(ans.split(":").last());
+        QString stateRep = ans.split(":STATE:{").last();
+        reply_releaseStatus(stateRep.remove(stateRep.size()-1, 1));
     }
-//    else if()
-//    {
-
-//    }
 //    else if()
 //    {
 
@@ -38,15 +40,15 @@ void RequestManager::reply(const QString &ans)
     }
 }
 
-void RequestManager::reply_enterRoom(const QString &rep)
+void RequestManager::reply_releaseStatus(const QString &rep)
 {
-    if (rep == "NO")
+    //ROOM:num:{player1, player2}
+    QString roomNum = rep.split(":")[1];
+    if(roomNum == "")
     {
-#ifdef QT_DEBUG
-        qInfo() << QTime::currentTime().toString() << "room creating error";
-#endif
+        emit qml_exitRoom();
         return;
     }
-
-    emit qml_enterRoom(rep);
+    QStringList playerList = rep.split('{')[1].split('}')[0].split(',');
+    emit qml_enterRoom(roomNum, playerList);
 }
