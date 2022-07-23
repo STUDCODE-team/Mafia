@@ -6,10 +6,38 @@ RequestManager::RequestManager()
     connect(&client, &TcpClient::setConnectionStatus, this, &RequestManager::setConnectionStatus);
 }
 
+RequestManager::~RequestManager()
+{
+//    delete m_nfc;
+}
+
 void RequestManager::bind_server(const QString &port, const QString &ip)
 {
     this->client.bind(port, ip);
 }
+
+void RequestManager::broadcastNFC(const QByteArray &room)
+{
+    m_nfc.tryWrite(room);
+}
+
+void RequestManager::catchNFC()
+{
+    m_nfc.tryRead();
+    //    connect()
+}
+
+void RequestManager::offNFC()
+{
+    m_nfc.off();
+}
+
+void RequestManager::ndefMessageRead(QString &room)
+{
+
+    connectToRoom(room);
+}
+
 
 void RequestManager::createNewRoom()
 {
@@ -33,10 +61,6 @@ void RequestManager::reply(const QString &ans)
         QString stateRep = ans.split(":STATE:{").last();
         reply_releaseStatus(stateRep.remove(stateRep.size()-1, 1));
     }
-//    else if()
-//    {
-
-//    }
     else
     {
 #ifdef QT_DEBUG
@@ -57,3 +81,4 @@ void RequestManager::reply_releaseStatus(const QString &rep)
     QStringList playerList = rep.split('{')[1].split('}')[0].split(',');
     emit qml_enterRoom(roomNum, playerList);
 }
+

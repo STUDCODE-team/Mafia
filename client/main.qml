@@ -31,24 +31,36 @@ ApplicationWindow {
         id: stack
         anchors.fill: parent
         onCurrentIndexChanged: {
-            if (currentIndex == 1){
+            if (currentIndex == connectToRoomPage.stackIndex){
                 connectToRoomPage.setInputFieldFocus()
             }else{
                 forceActiveFocus();
             }
-        }
 
+            if(currentIndex == connectToRoomPage.stackIndex){
+                manager.catchNFC();
+            }else if(currentIndex == roomLobby.stackIndex){
+                manager.broatcastNFC();
+            }else {
+                manager.offNFC();
+            }
+        }
+        Page{
+            id: loadingPage
+            property int stackIndex: 0
+            //типо экран загрузки
+        }
         HomePage{
             id: homePage
-            property int stackIndex: 0
+            property int stackIndex: 1
         }
         ConnectToRoomPage{
             id: connectToRoomPage
-            property int stackIndex: 1
+            property int stackIndex: 2
         }
         RoomLobby{
             id: roomLobby
-            property int stackIndex: 2
+            property int stackIndex: 3
         }
     }
 }

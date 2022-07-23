@@ -1,4 +1,4 @@
-QT += quick core
+QT += quick core nfc
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -9,6 +9,7 @@ CONFIG += sdk_no_version_check #disable if smth wrong
 
 SOURCES += \
         FileSystem.cpp \
+        NFC.cpp \
         RequestManager.cpp \
         TcpClient.cpp \
         main.cpp
@@ -28,6 +29,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     FileSystem.h \
+    NFC.h \
     RequestManager.h \
     TcpClient.h \
     Timer.h
