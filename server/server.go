@@ -1,12 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 	"net"
 	"strconv"
 	"strings"
 	"time"
-	// "fmt"
 )
 
 type Room struct {
@@ -17,7 +17,7 @@ type Room struct {
 var RoomList map[string]Room = make(map[string]Room)
 
 func (room Room) removePlayerByIndex(index int) Room {
-    room.players = append(room.players[:index], room.players[index+1:]...)
+	room.players = append(room.players[:index], room.players[index+1:]...)
 	return room
 }
 
@@ -63,17 +63,17 @@ func identifyUser(id string, newReplyChan chan string) {
 		// it means client has reconnected and we have to
 		// change channels by deleting old and creating a new one
 		if user.ID == id {
+			user.replyChan = newReplyChan
 			UserList[newReplyChan] = user
 			delete(UserList, replyChan)
-			// userBack
 			sendUserState(getUserState(newReplyChan))
 			return
 		}
 	}
-
 	// if there wasn't user with same deviceID,
 	// it is new user
 	UserList[newReplyChan] = User{ID: id, room: "", replyChan: newReplyChan}
+	sendUserState(getUserState(newReplyChan))
 }
 
 //This function generate reply form to tell client his status in app
@@ -178,8 +178,8 @@ func proceedRequest(request string, replyChan chan string) {
 	// It's supposed to identify user and recover his
 	// session if needed
 	case "DEVICEID":
-		go identifyUser(strings.Split(request, ":")[2], replyChan)
-
+		identifyUser(strings.Split(request, ":")[2], replyChan)
+		fmt.Println(UserList)
 	// this request sends if client is needed in new room
 	// It's supposed to create new room and
 	// move current user into that room
@@ -195,10 +195,9 @@ func proceedRequest(request string, replyChan chan string) {
 	//this request sends if client is needed to to exit a room he in
 	case "EXITROOM": //?
 		// delete user from room players list
-
 		user := UserList[replyChan]
 		room := RoomList[user.room]
-		RoomList[user.room] = room.removePlayerByUser(user);
+		RoomList[user.room] = room.removePlayerByUser(user)
 		// if room is empty, delete it
 		if len(RoomList[user.room].players) == 0 {
 			delete(RoomList, user.room)
@@ -209,9 +208,7 @@ func proceedRequest(request string, replyChan chan string) {
 		user.room = ""
 		UserList[replyChan] = user
 
-
 		sendUserState(getUserState(replyChan))
-
 
 	case "CONROOM":
 		roomNum := strings.Split(request, ":")[2]
